@@ -16,7 +16,8 @@ import {
   ListView,
   Dimensions,
   Alert,
-  TouchableHighlight
+  TouchableHighlight,
+  Image
 } from 'react-native';
 
 const instructions = Platform.select({
@@ -29,6 +30,9 @@ const instructions = Platform.select({
 const ds = new ListView.DataSource({
   rowHasChanged:(r1,r2)=>r1!==r2
 });
+
+const circleSize=8;
+const circleMargin=5;
 
 export default class App extends Component<{}> {
   constructor(props){
@@ -49,16 +53,13 @@ export default class App extends Component<{}> {
       ]),
       advertisements:[
         {
-          title:'广告1',
-          backgroundColor:'gray'
+          image:require('./images/advertisement-image-01.jpg')
         },
         {
-          title:'广告2',
-          backgroundColor:'orange'
+          image:require('./images/advertisement-image-02.jpg')
         },
         {
-          title:'广告3',
-          backgroundColor:'yellow'
+          image:require('./images/advertisement-image-03.jpg')
         }
       ],
       searchText:''
@@ -82,6 +83,11 @@ export default class App extends Component<{}> {
     } ,2000);
   }
   render() {
+    const advertisementCount = this.state.advertisements.length;
+    const indicatorWidth = circleSize*advertisementCount+circleMargin*advertisementCount*2;//计算指示器宽度
+    const left = (Dimensions.get('window').width-indicatorWidth)/2;//计算指示器最左边的坐标位置
+
+
     return (
       <View style={styles.container}>
         <View style={styles.searchbar}>
@@ -100,10 +106,8 @@ export default class App extends Component<{}> {
               this.state.advertisements.map(
                 (advertisement,index)=>{
                   return(
-                    <TouchableHighlight key={index}  onPress={()=>Alert.alert("广告","你点击了广告",null)}>
-                      <Text style={[styles.advertisementContent,{backgroundColor:advertisement.backgroundColor}]} >
-                        {advertisement.title}
-                       </Text>
+                    <TouchableHighlight key={index}  onPress={()=>Alert.alert("广告","你点击了轮播图片",null)}>
+                       <Image style={styles.advertisementContent} source={advertisement.image} />
                     </TouchableHighlight>
                   );
 
@@ -112,9 +116,19 @@ export default class App extends Component<{}> {
               )
             }
            
-            
-
           </ScrollView>
+          <View style={[styles.indicator,{left:left}]}>
+            {
+              this.state.advertisements.map(
+                (advertisement,index)=>{
+                  return (
+                    <View key={index} style={(index===this.state.currentpage)?styles.circleSelected:styles.circle} />
+                  );
+                }
+              )
+            }
+
+          </View>
         </View>
         <View style={styles.products}>
          <ListView dataSource={this.state.dataSource} renderRow={this._renderRow} ></ListView>
@@ -172,5 +186,25 @@ const styles = StyleSheet.create({
   advertisementContent:{
     width:Dimensions.get("window").width,
     height:180
+  },
+  indicator:{
+    position:'absolute',
+    top:160,
+    flexDirection:'row'
+
+  },
+  circle:{
+    width:circleSize,
+    height:circleSize,
+    borderRadius:circleSize/2,
+    backgroundColor:'gray',
+    marginHorizontal:circleMargin
+  },
+  circleSelected:{
+    width:circleSize,
+    height:circleSize,
+    borderRadius:circleSize/2,
+    backgroundColor:'white',
+    marginHorizontal:circleMargin
   }
 });
