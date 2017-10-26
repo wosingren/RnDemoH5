@@ -17,7 +17,8 @@ import {
   Dimensions,
   Alert,
   TouchableHighlight,
-  Image
+  Image,
+  RefreshControl
 } from 'react-native';
 
 const instructions = Platform.select({
@@ -101,7 +102,8 @@ export default class App extends Component<{}> {
           image:require('./images/advertisement-image-03.jpg')
         }
       ],
-      searchText:''
+      searchText:'',
+      isRefreshing:false
     };
   }
 
@@ -170,7 +172,9 @@ export default class App extends Component<{}> {
           </View>
         </View>
         <View style={styles.products}>
-         <ListView dataSource={this.state.dataSource} renderRow={this._renderRow} renderSeparator={this._renderSeperator} ></ListView>
+         <ListView dataSource={this.state.dataSource} renderRow={this._renderRow}
+          renderSeparator={this._renderSeperator} refreshControl={this._renderRefreshControl()} >
+          </ListView>
         </View>
       </View>
     );
@@ -195,8 +199,26 @@ export default class App extends Component<{}> {
       <View  style={styles.divider}>
         </View>
     );
-
   }
+
+  _renderRefreshControl(){
+      return (
+      <RefreshControl refreshing={this.state.isRefreshing} tintColor={'#FF0000'} title={'正在刷新数据，请稍后...'} titleColor={'#0000FF'}
+       onRefresh={this._OnRefesh}>
+
+      </RefreshControl>
+      );
+  }
+
+  _OnRefesh=()=>{
+    this.setState({isRefreshing:true});
+    setTimeout(()=>{
+      const products= Array.from(new Array(10)).map((value,index)=>({image:require('./images/product-image-01.jpg'),title:'新商品'+index,subTitle:'新商品描述'+index}));
+      this.setState({isRefreshing:false,dataSource:ds.cloneWithRows(products)});
+  },2000)
+  }
+
+  
 }
 
 
